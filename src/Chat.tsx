@@ -105,6 +105,15 @@ export class Chat extends React.Component<ChatProps, {}> {
         });
     }
 
+    private resetMessage() {
+        let state = this.store.getState();
+        this.store.dispatch(sendMessage(
+            'restart',
+            state.connection.user,
+            "en-GB"
+        ));
+    }
+
     componentDidMount() {
         // Now that we're mounted, we know our dimensions. Put them in the store (this will force a re-render)
         this.setSize();
@@ -148,6 +157,7 @@ export class Chat extends React.Component<ChatProps, {}> {
         window.removeEventListener('resize', this.resizeListener);
     }
 
+
     // At startup we do three render passes:
     // 1. To determine the dimensions of the chat panel (nothing needs to actually render here, so we don't)
     // 2. To determine the margins of any given carousel (we just render one mock activity so that we can measure it)
@@ -166,8 +176,13 @@ export class Chat extends React.Component<ChatProps, {}> {
         // only render real stuff after we know our dimensions
         let header: JSX.Element;
         if (state.format.options.showHeader) header =
-            <div className="wc-header">
-                <span>{ state.format.strings.title }</span>
+            <div>
+              <img className="refshIcon" src="assets/images/refresh.png"
+                title="restart" onClick={()=>this.resetMessage()}
+               />
+              <div className="wc-header">
+                <span className="pull-left">{ state.format.strings.title }</span>
+              </div>
             </div>;
 
         let resize: JSX.Element;
@@ -190,7 +205,7 @@ export class Chat extends React.Component<ChatProps, {}> {
 }
 
 export interface IDoCardAction {
-    (type: CardActionTypes, value: string | object): void;
+    (type: CardActionTypes, value: string): void;
 }
 
 export const doCardAction = (
@@ -200,20 +215,16 @@ export const doCardAction = (
     sendMessage: (value: string, user: User, locale: string) => void,
 ): IDoCardAction => (
     type,
-    actionValue
+    value
 ) => {
-
-    const text = (typeof actionValue === 'string') ? actionValue as string : undefined;
-    const value = (typeof actionValue === 'object')? actionValue as object : undefined;
-
     switch (type) {
         case "imBack":
-            if (typeof text === 'string')
-                sendMessage(text, from, locale);
+            if (value && typeof value === 'string')
+                sendMessage(value, from, locale);
             break;
 
         case "postBack":
-            sendPostBack(botConnection, text, value, from, locale);
+            sendPostBack(botConnection, value, from, locale);
             break;
 
         case "call":
@@ -223,7 +234,7 @@ export const doCardAction = (
         case "showImage":
         case "downloadFile":
         case "signin":
-            window.open(text);
+            window.open(value);
             break;
 
         default:
@@ -231,11 +242,10 @@ export const doCardAction = (
         }
 }
 
-export const sendPostBack = (botConnection: IBotConnection, text: string, value: object, from: User, locale: string) => {
+export const sendPostBack = (botConnection: IBotConnection, text: string, from: User, locale: string) => {
     botConnection.postActivity({
         type: "message",
         text,
-        value,
         from,
         locale
     })

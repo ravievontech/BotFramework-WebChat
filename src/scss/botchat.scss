@@ -45,7 +45,7 @@ $actionTransition: .2s cubic-bezier(0,0,.5,1);
     }
 
     .wc-header {
-        background-color: $c_brand;
+        /*background-color: $c_brand;*/
         box-shadow: 0 1px $c_shadow;
         box-sizing: content-box;
         color: $c01;
@@ -58,6 +58,20 @@ $actionTransition: .2s cubic-bezier(0,0,.5,1);
         right: 0;
         top: 0;
         z-index: 1;
+        cursor: pointer;
+
+        /* IE10+ */
+        background-image: -ms-radial-gradient(right bottom, ellipse farthest-corner, #6C4D9D 30%, #8962C7 70%);
+        /* Mozilla Firefox */
+        background-image: -moz-radial-gradient(right bottom, ellipse farthest-corner, #6C4D9D 30%, #8962C7 70%);
+        /* Opera */
+        background-image: -o-radial-gradient(right bottom, ellipse farthest-corner, #6C4D9D 30%, #8962C7 70%);
+        /* Webkit (Safari/Chrome 10) */
+        background-image: -webkit-gradient(radial, right bottom, 0, right bottom, 572, color-stop(30, #6C4D9D), color-stop(70, #8962C7));
+        /* Webkit (Chrome 11+) */
+        background-image: -webkit-radial-gradient(right bottom, ellipse farthest-corner, #6C4D9D 30%, #8962C7 70%);
+        /* W3C Markup */
+        background-image: radial-gradient(ellipse farthest-corner at right bottom, #6C4D9D 30%, #8962C7 70%);
     }
 
     .wc-time {
@@ -135,7 +149,7 @@ $actionTransition: .2s cubic-bezier(0,0,.5,1);
             top: 0;
             width: 28px;
         }
-        
+
         button.scroll:disabled {
             display: none;
         }
@@ -185,12 +199,34 @@ $actionTransition: .2s cubic-bezier(0,0,.5,1);
 
     .wc-chatview-panel {
         overflow: hidden;
-        position: absolute;
+        position: fixed !important;
         right: 0;
-        left: 0;
-        top: 0;
+        /*left: 0;
+        top: 0;*/
         bottom: 0;
+        width: 300px;
+        height: 450px;
+        border-radius: 5px;
+        border: 1px solid #8962C7;
+        transition:all 1s;
+        &.active{
+            height: 40px;
+            transition:all 1s;
+            border-radius: 5px 5px 0 0;
+        }
+        &.ui-resizable-resizing{
+            transition: none;
+        }
+        img.refshIcon {
+            position: absolute;
+            right: 5px;
+            top: 9px;
+            width: 20px;
+            z-index: 100;
+            cursor: pointer;
+        }
     }
+
 
 /* messages */
 
@@ -202,6 +238,14 @@ $actionTransition: .2s cubic-bezier(0,0,.5,1);
         overflow: hidden;
         position: relative;
         /*transition: max-height 2s ease-in-out;*/
+        img{
+            &.userIcon{
+                width: 30px;
+                height: 30px;
+                float: left;
+                border-radius: 50%;
+            }
+        }
     }
 
     @keyframes animationFrames{

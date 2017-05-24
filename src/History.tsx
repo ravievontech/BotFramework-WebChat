@@ -46,11 +46,11 @@ export class HistoryView extends React.Component<HistoryProps, {}> {
 
             // Subtract the padding from the offsetParent's width to get the width of the content
             const maxContentWidth = (this.carouselActivity.messageDiv.offsetParent as HTMLElement).offsetWidth - paddedWidth;
-            
+
             // Subtract the content width from the chat width to get the margin.
             // Next time we need to get the content width (on a resize) we can use this margin to get the maximum content width
             const carouselMargin = this.props.size.width - maxContentWidth;
-            
+
             konsole.log('history measureMessage ' + carouselMargin);
 
             // Finally, save it away in the Store, which will force another re-render
@@ -62,19 +62,22 @@ export class HistoryView extends React.Component<HistoryProps, {}> {
         this.autoscroll();
     }
 
+    componentDidMount() {
+        this.autoscroll();
+    }
     private autoscroll() {
         const vAlignBottomPadding = Math.max(0, measurePaddedHeight(this.scrollMe) - this.scrollContent.offsetHeight);
         this.scrollContent.style.marginTop = vAlignBottomPadding + 'px';
 
-        if (this.scrollToBottom)
+        if (this.scrollMe.scrollHeight > this.scrollMe.offsetHeight)
             this.scrollMe.scrollTop = this.scrollMe.scrollHeight - this.scrollMe.offsetHeight;
     }
 
     // In order to do their cool horizontal scrolling thing, Carousels need to know how wide they can be.
-    // So, at startup, we create this mock Carousel activity and measure it. 
+    // So, at startup, we create this mock Carousel activity and measure it.
     private measurableCarousel = () =>
         // find the largest possible message size by forcing a width larger than the chat itself
-        <WrappedActivity 
+        <WrappedActivity
             ref={ x => this.carouselActivity = x }
             activity={ {
                 type: 'message',
@@ -97,7 +100,7 @@ export class HistoryView extends React.Component<HistoryProps, {}> {
     // 2. To determine the margins of any given carousel (we just render one mock activity so that we can measure it)
     // 3. (this is also the normal re-render case) To render without the mock activity
 
-    private doCardAction(type: CardActionTypes, value: string | object) {
+    private doCardAction(type: CardActionTypes, value: string) {
         this.props.setFocus();
         return this.props.doCardAction(type, value);
     }
@@ -132,7 +135,7 @@ export class HistoryView extends React.Component<HistoryProps, {}> {
                             format={ this.props.format }
                             size={ this.props.size }
                             activity={ activity }
-                            onCardAction={ (type: CardActionTypes, value: string | object) => this.doCardAction(type, value) }
+                            onCardAction={ (type: CardActionTypes, value: string) => this.doCardAction(type, value) }
                             onImageLoad={ () => this.autoscroll() }
                         />
                     </WrappedActivity>
@@ -141,7 +144,7 @@ export class HistoryView extends React.Component<HistoryProps, {}> {
         }
 
         return (
-            <div className="wc-message-groups" ref={ div => this.scrollMe = div || this.scrollMe }>
+            <div className="wc-message-groups" ref={ ref => { if (ref) this.scrollMe = ref } }>
                 <div className="wc-message-group-content" ref={ div => this.scrollContent = div }>
                     { content }
                 </div>
@@ -156,7 +159,7 @@ export const History = connect(
         format: state.format,
         size: state.size,
         activities: state.history.activities,
-        // only used to create helper functions below 
+        // only used to create helper functions below
         connectionSelectedActivity: state.connection.selectedActivity,
         selectedActivity: state.history.selectedActivity,
         botConnection: state.connection.botConnection,
@@ -164,7 +167,7 @@ export const History = connect(
     }), {
         setMeasurements: (carouselMargin: number) => ({ type: 'Set_Measurements', carouselMargin }),
         onClickRetry: (activity: Activity) => ({ type: 'Send_Message_Retry', clientActivityId: activity.channelData.clientActivityId }),
-        // only used to create helper functions below 
+        // only used to create helper functions below
         sendMessage
     }, (stateProps: any, dispatchProps: any, ownProps: any): HistoryProps => ({
         // from stateProps
@@ -263,6 +266,8 @@ export class WrappedActivity extends React.Component<WrappedActivityProps, {}> {
 
         return (
             <div data-activity-id={ this.props.activity.id } className={ wrapperClassName } onClick={ this.props.onClickActivity }>
+                { who=="bot" && <img
+                    src='assets/images/bot.png' className="userIcon"/>}
                 <div className={ 'wc-message wc-message-from-' + who } ref={ div => this.messageDiv = div }>
                     <div className={ contentClassName }>
                         <svg className="wc-message-callout">

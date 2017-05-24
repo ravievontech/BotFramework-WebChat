@@ -83,13 +83,13 @@ export const Shell = connect(
         // passed down to ShellContainer
         inputText: state.shell.input,
         strings: state.format.strings,
-        // only used to create helper functions below 
+        // only used to create helper functions below
         locale: state.format.locale,
         user: state.connection.user,
     }), {
         // passed down to ShellContainer
         onChangeText: (input: string) => ({ type: 'Update_Input', input } as ChatActions),
-        // only used to create helper functions below 
+        // only used to create helper functions below
         sendMessage,
         sendFiles
     }, (stateProps: any, dispatchProps: any, ownProps: any): Props => ({
